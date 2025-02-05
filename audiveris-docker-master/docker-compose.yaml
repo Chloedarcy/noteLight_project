@@ -1,0 +1,10 @@
+version: "3.7"
+
+services:
+    audiveris:
+        build: .
+        image: toprock/audiveris
+        container_name: audiveris-converter
+        volumes:
+            -  "./input:/input/"
+            -  "./output:/output/"
