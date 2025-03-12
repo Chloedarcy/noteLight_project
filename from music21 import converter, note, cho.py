@@ -1,22 +1,35 @@
 from music21 import converter, note, chord
 
 # Load the MusicXML file
-xml_file = "/Users/dhwang25/Downloads/Runaway - Kanye West.xml"  # Replace with your file
+xml_file = "/Users/dhwang25/Downloads/Beethoven7th_chorus_only.mxl"  # Replace with your file path
 score = converter.parse(xml_file)
 
-note_data = []  # Store extracted notes
+note_data = []  # Stores (absolute_time, [notes], duration, part_name)
 
-for part in score.parts:  # Loop through instruments/parts
-    for element in part.flat.notes:
+for part in score.parts:  
+    part_name = part.partName if part.partName else "Unknown Part"
+    
+    for element in part.flat.notes:  
+        absolute_time = element.offset  # This tracks time from start of piece
+
         if isinstance(element, note.Note):
-            note_name = element.nameWithOctave  # Example: "C4"
-            duration = element.quarterLength  # In beats
-            note_data.append((note_name, duration))
-        elif isinstance(element, chord.Chord):
-            chord_notes = [n.nameWithOctave for n in element.notes]  # List of note names
+            note_name = element.nameWithOctave
             duration = element.quarterLength
-            note_data.append((chord_notes, duration))
+            note_data.append((absolute_time, [note_name], duration, part_name))
 
-# Print extracted notes
+        elif isinstance(element, chord.Chord):
+            chord_notes = [n.nameWithOctave for n in element.notes]
+            duration = element.quarterLength
+            note_data.append((absolute_time, chord_notes, duration, part_name))
+
+# Sort data by absolute time
+note_data.sort(key=lambda x: x[0])
+
+# Print formatted output
 for entry in note_data:
-    print(entry)
+    absolute_time, notes, duration, part_name = entry
+    print(f"Time: {absolute_time:.2f} beats | Notes: {notes} | Duration: {duration} beats | Part: {part_name}")
+
+for entry in note_data:
+    absolute_time, notes, duration, part_name = entry
+    print(f"Time: {absolute_time:.2f} beats | Notes: {notes} | Duration: {duration} beats | Part: {part_name}")
